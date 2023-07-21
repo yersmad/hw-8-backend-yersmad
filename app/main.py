@@ -26,6 +26,25 @@ class UserCreateRequest(BaseModel):
     password: str
 
 
+class UserProfileResponse(BaseModel):
+    id: int
+    email: str
+    full_name: str
+
+
+class FlowerCreateRequest(BaseModel):
+    name: str
+    count: int
+    cost: int
+
+
+class FlowerResponse(BaseModel):
+    id: int
+    name: str
+    count: int
+    cost: int
+
+
 def get_db():
     db = SessionLocal()
     try:
@@ -53,13 +72,48 @@ def post_login(email: str, password: str, db: Session = Depends(get_db)):
     return RedirectResponse("/profile", status_code=303)
 
 
-class UserProfileResponse(BaseModel):
-    id: int
-    email: str
-    full_name: str
-
-
 @app.get("/profile", response_model=UserProfileResponse)
 def get_profile(user_id: int, db: Session = Depends(get_db)):
-    user = users_repository.get_user(db, user_id)
-    return user
+    db_user = users_repository.get_user(db, user_id)
+    
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return db_user
+
+
+@app.get("/flowers")
+def get_flowers(skip: int=0, limit: int=100, db: Session = Depends(get_db)):
+    db_flowers = flowers_repository.get_flowers(db, skip=skip, limit=limit)
+    if db_flowers is None:
+        raise HTTPException(status_code=404, detail="Flowers not found")
+
+    return db_flowers
+
+
+@app.post("/flowers")
+def post_flowers(input: FlowerCreateRequest, db: Session = Depends(get_db)):
+    created_flower = flowers_repository.create_flower(db, flower=input)
+    return RedirectResponse("/flowers", status_code=303)
+
+
+# @app.put("/flowers/{flower_id}")
+# def update_flower(
+#     flower_id: int,
+#     new_flower: Flower,
+#     db: Session = Depends(get_db)
+# ):
+#     updated_flower = flowers_repository.update_flower(db, flower_id=flower_id, new_flower={"name": name, "count": count, "cost": cost})
+#     if updated_flower is None:
+#         raise HTTPException(status_code=404, detail="Flower not found")
+
+#     return RedirectResponse("/flowers", status_code=303)
+
+
+@app.delete("/flowers/{flower_id}")
+def delete_flower(flower_id: int, db: Session = Depends(get_db)):
+    db_flower = flowers_repository.delete_flower_by_id(db, flower_id=flower_id)
+    if db_flower is None:
+        raise HTTPException(status_code=404, detail="Flowers not found")
+    
+    return RedirectResponse("/flowers", status_code=303)

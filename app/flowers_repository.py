@@ -23,7 +23,7 @@ class FlowerCreate:
 
 class FlowersRepository:
     def get_flower(self, db: Session, flower_id: int) -> Flower | None:
-        return db.query(Flower).filter(FLower.id == flower_id).first()
+        return db.query(Flower).filter(Flower.id == flower_id).first()
 
     def get_flower_by_name(self, db: Session, name: str) -> Flower | None:
         return db.query(Flower).filter(Flower.name == name).first()
@@ -37,3 +37,11 @@ class FlowersRepository:
         db.commit()
         db.refresh(db_flower)
         return db_flower
+
+    def update_flower(self, db: Session, flower_id: int, new_data: Flower) -> Flower:
+        db_flower = db.query(Flower).filter(Flower.id == flower_id).update(new_data)
+        db.commit()
+        
+    def delete_flower_by_id(self, db: Session, flower_id: int):
+        db_flower = db.query(Flower).filter(Flower.id == flower_id).delete()
+        db.commit()
