@@ -1,10 +1,9 @@
-from fastapi import Cookie, FastAPI, Form, Request, Response, Depends, HTTPException
+from fastapi import FastAPI, Response, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from fastapi.security import OAuth2PasswordBearer
 
-from .flowers_repository import Flower, FlowersRepository
+from .flowers_repository import Flower, FlowersRepository, FlowerCreate
 from .purchases_repository import Purchase, PurchasesRepository
 from .users_repository import User, UsersRepository, UserCreate
 from .database import Base, engine, SessionLocal
@@ -13,7 +12,6 @@ from .database import Base, engine, SessionLocal
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 flowers_repository = FlowersRepository()
 purchases_repository = PurchasesRepository()
