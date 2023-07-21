@@ -97,17 +97,18 @@ def post_flowers(input: FlowerCreateRequest, db: Session = Depends(get_db)):
     return RedirectResponse("/flowers", status_code=303)
 
 
-# @app.put("/flowers/{flower_id}")
-# def update_flower(
-#     flower_id: int,
-#     new_flower: Flower,
-#     db: Session = Depends(get_db)
-# ):
-#     updated_flower = flowers_repository.update_flower(db, flower_id=flower_id, new_flower={"name": name, "count": count, "cost": cost})
-#     if updated_flower is None:
-#         raise HTTPException(status_code=404, detail="Flower not found")
+@app.put("/flowers/{flower_id}")
+def update_flower(
+    flower_id: int,
+    new_flower: FlowerCreateRequest,
+    db: Session = Depends(get_db)
+):
+    db_flower = flowers_repository.get_flower(db, flower_id=flower_id)
+    updated_flower = flowers_repository.update_flower(db, flower_id=flower_id, new_data=new_flower)
+    if db_flower is None:
+        raise HTTPException(status_code=404, detail="Flower not found")
 
-#     return RedirectResponse("/flowers", status_code=303)
+    return RedirectResponse("/flowers", status_code=303)
 
 
 @app.delete("/flowers/{flower_id}")

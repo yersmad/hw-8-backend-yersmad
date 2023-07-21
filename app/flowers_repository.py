@@ -39,9 +39,9 @@ class FlowersRepository:
         return db_flower
 
     def update_flower(self, db: Session, flower_id: int, new_data: Flower) -> Flower:
-        db_flower = db.query(Flower).filter(Flower.id == flower_id).update(new_data)
+        db_flower = db.query(Flower).filter(Flower.id == flower_id).update({Flower.name: new_data.name, Flower.count: new_data.count, Flower.cost: new_data.cost})
         db.commit()
-        
+
     def delete_flower_by_id(self, db: Session, flower_id: int):
         db_flower = db.query(Flower).filter(Flower.id == flower_id).delete()
         db.commit()
